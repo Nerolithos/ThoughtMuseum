@@ -1,3 +1,9 @@
+# Thought Museum
+
+Convey ideology, philosophy and ideas through questionnaire and self explore.
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -161,42 +161,42 @@ const SCENARIOS: Scenario[] = [
   },
   {
     id: 'loop-track',
-    title: '回环轨道变体',
-    description: '绕圈制动 vs 直接撞击',
-    context: '你可以让电车进入回环轨道，撞上一个体型很大的行人后停下，救下主轨5人。',
-    actionText: '切入回环',
-    consequence: '“把一个人当作手段”问题被放大。',
+    title: '罪责身份变体',
+    description: '5名逃犯 vs 5名路人',
+    context: '两个分叉铁轨上分别有 5 人：主轨是 5 名无辜路人，侧轨是 5 名非死刑逃犯。你可以改道。',
+    actionText: '转向侧轨',
+    consequence: '人数相同后，抉择从“功利数量”转向“罪责与应得惩罚是否可由你决定”。',
     branchIfAct: 'right',
-    leftLabel: '主轨: 5人',
-    rightLabel: '回环: 1人拦停',
-    leftNote: '轨道维修队',
-    rightNote: '高体重行人',
+    leftLabel: '主轨: 5位路人',
+    rightLabel: '侧轨: 5位逃犯',
+    leftNote: '无辜路人',
+    rightNote: '非死刑逃犯',
     leftLives: 5,
-    rightLives: 1,
+    rightLives: 5,
     aiPrediction: {
-      actRate: 33,
-      inactRate: 67,
-      explanation: '即便机制间接，模型仍预测多数人反感“工具化他人”。',
+      actRate: 46,
+      inactRate: 54,
+      explanation: '在“人数相同但身份不同”的场景里，模型预测选择会明显分裂：有人基于罪责改道，有人拒绝私人执法。',
     },
   },
   {
     id: 'autonomous-car',
-    title: '自动驾驶变体',
-    description: '乘客安全 vs 行人数量',
-    context: '你要给自动驾驶系统设默认伦理参数：保护车内1名乘客，还是避让失败时优先保全外部5名行人。',
-    actionText: '设为外部优先',
-    consequence: '从个人决断转向“制度预设”，责任更难追溯。',
+    title: '责任归属变体',
+    description: '1名自杀者 vs 5名被绑者',
+    context: '主轨上有 5 名被他人绑到铁轨上的人；侧轨上有 1 名主动把自己绑在铁轨上自杀的人。你可以改道。',
+    actionText: '转向侧轨',
+    consequence: '冲突核心变成“自我责任”与“被迫受害者优先保护”之间的权衡。',
     branchIfAct: 'right',
-    leftLabel: '主轨: 车内1人',
-    rightLabel: '侧轨: 外部5人',
-    leftNote: '乘客（签署协议）',
-    rightNote: '路口行人',
-    leftLives: 1,
-    rightLives: 5,
+    leftLabel: '主轨: 5名被绑者',
+    rightLabel: '侧轨: 1名自杀者',
+    leftNote: '被迫受害者',
+    rightNote: '主动自绑者',
+    leftLives: 5,
+    rightLives: 1,
     aiPrediction: {
-      actRate: 58,
-      inactRate: 42,
-      explanation: '在政策层，模型更偏向总体伤亡最小化，但需透明告知。',
+      actRate: 71,
+      inactRate: 29,
+      explanation: '模型倾向改道：优先保护被迫受害者，并将自我伤害责任权重纳入判断。',
     },
   },
   {
@@ -227,6 +227,7 @@ const TrolleyProblem: React.FC = () => {
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [resolvingChoice, setResolvingChoice] = useState<Choice | null>(null);
+  const [previewChoice, setPreviewChoice] = useState<Choice | null>(null);
 
   const scenario = SCENARIOS[currentScenarioIdx];
 
@@ -269,6 +270,7 @@ const TrolleyProblem: React.FC = () => {
     setCurrentScenarioIdx(0);
     setShowResults(false);
     setResolvingChoice(null);
+    setPreviewChoice(null);
   };
 
   const profile = useMemo(() => {
@@ -424,15 +426,16 @@ const TrolleyProblem: React.FC = () => {
 
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="mb-10">
           <div className="museum-panel p-8">
-            <h2 className="heading-3 mb-2 text-museum-accent">{scenario.title}</h2>
-            <p className="subheading mb-6">{scenario.description}</p>
-
             <div className="bg-museum-bg rounded-lg p-6 mb-6 border border-museum-border/50">
-              <RailwayVisualization scenario={scenario} resolvingChoice={resolvingChoice} />
+              <RailwayVisualization
+                scenario={scenario}
+                resolvingChoice={resolvingChoice}
+                previewChoice={previewChoice}
+              />
             </div>
 
             <div className="mb-6 p-5 bg-museum-border/20 rounded-lg border-l-4 border-museum-accent">
-              <p className="body-text mb-3">{scenario.context}</p>
+              <p className="body-text mb-3"><span className="text-museum-accent font-semibold">{scenario.title}：</span>{scenario.context}</p>
               <p className="body-small text-museum-muted">{scenario.consequence}</p>
             </div>
 
@@ -441,6 +444,10 @@ const TrolleyProblem: React.FC = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 disabled={Boolean(resolvingChoice)}
+                onMouseEnter={() => !resolvingChoice && setPreviewChoice('act')}
+                onMouseLeave={() => setPreviewChoice(null)}
+                onFocus={() => !resolvingChoice && setPreviewChoice('act')}
+                onBlur={() => setPreviewChoice(null)}
                 onClick={() => handleChoice('act')}
                 className="p-5 rounded-lg border-2 border-museum-accent bg-museum-accent/10 hover:bg-museum-accent/20 disabled:opacity-60"
               >
@@ -452,6 +459,10 @@ const TrolleyProblem: React.FC = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 disabled={Boolean(resolvingChoice)}
+                onMouseEnter={() => !resolvingChoice && setPreviewChoice('inact')}
+                onMouseLeave={() => setPreviewChoice(null)}
+                onFocus={() => !resolvingChoice && setPreviewChoice('inact')}
+                onBlur={() => setPreviewChoice(null)}
                 onClick={() => handleChoice('inact')}
                 className="p-5 rounded-lg border-2 border-museum-border hover:border-museum-muted hover:bg-museum-border/10 disabled:opacity-60"
               >
@@ -491,14 +502,17 @@ const TrolleyProblem: React.FC = () => {
   );
 };
 
-const RailwayVisualization: React.FC<{ scenario: Scenario; resolvingChoice: Choice | null }> = ({
+const RailwayVisualization: React.FC<{ scenario: Scenario; resolvingChoice: Choice | null; previewChoice: Choice | null }> = ({
   scenario,
   resolvingChoice,
+  previewChoice,
 }) => {
+  const effectiveChoice = resolvingChoice ?? previewChoice;
+
   const selectedBranch: TrackBranch | null =
-    resolvingChoice === null
+    effectiveChoice === null
       ? null
-      : resolvingChoice === 'act'
+      : effectiveChoice === 'act'
         ? scenario.branchIfAct
         : scenario.branchIfAct === 'left'
           ? 'right'
@@ -506,7 +520,7 @@ const RailwayVisualization: React.FC<{ scenario: Scenario; resolvingChoice: Choi
 
   const trolleyAnimation =
     resolvingChoice === null
-      ? { translateX: [34, 76], translateY: [130, 130] }
+      ? { translateX: 34, translateY: 130 }
       : selectedBranch === 'left'
         ? { translateX: [34, 110, 220, 320], translateY: [130, 130, 88, 64] }
         : { translateX: [34, 110, 220, 320], translateY: [130, 130, 172, 194] };
@@ -528,7 +542,7 @@ const RailwayVisualization: React.FC<{ scenario: Scenario; resolvingChoice: Choi
     upper: [{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }],
     lower: [{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }]
   ) => {
-    const ts = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86];
+    const ts = [0.1, 0.18, 0.26, 0.34, 0.42, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9];
     return ts.map((t) => {
       const a = pointOnQuadratic(upper[0], upper[1], upper[2], t);
       const b = pointOnQuadratic(lower[0], lower[1], lower[2], t);
@@ -622,7 +636,6 @@ const RailwayVisualization: React.FC<{ scenario: Scenario; resolvingChoice: Choi
       ))}
 
       <circle cx="120" cy="130" r="6" fill="#f59e0b" />
-      <text x="130" y="122" fill="#f59e0b" fontSize="12">分叉点</text>
 
       <VictimDots xStart={292} y={64} count={scenario.leftLives} tone="left" />
       <VictimDots xStart={292} y={194} count={scenario.rightLives} tone="right" />
