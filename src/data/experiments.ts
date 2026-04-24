@@ -1,0 +1,73 @@
+import type { Experiment } from '../types';
+
+export const EXPERIMENTS: Record<string, Experiment> = {
+  'ship-of-theseus': {
+    id: 'ship-of-theseus',
+    title: '忒修斯之船',
+    titleEn: 'Ship of Theseus',
+    subtitle: '同一性悖论',
+    description: '如果一艘船的所有部件都被逐一替换，这艘船还是原来的船吗？',
+    category: 'metaphysics',
+    icon: '⚓',
+    color: '#3b82f6',
+    order: 1,
+  },
+  'trolley-problem': {
+    id: 'trolley-problem',
+    title: '电车难题',
+    titleEn: 'Trolley Problem',
+    subtitle: '伦理困境',
+    description: '你能拉动杠杆改变列车方向，但这意味着牺牲一个人来拯救五个人。',
+    category: 'ethics',
+    icon: '🚂',
+    color: '#ef4444',
+    order: 2,
+  },
+  'chinese-room': {
+    id: 'chinese-room',
+    title: '中文房间',
+    titleEn: 'Chinese Room',
+    subtitle: '心灵哲学',
+    description: '仅通过规则操作符号就能理解语言吗？',
+    category: 'mind',
+    icon: '📝',
+    color: '#f59e0b',
+    order: 3,
+  },
+  'cave-allegory': {
+    id: 'cave-allegory',
+    title: '洞穴寓言',
+    titleEn: 'Allegory of the Cave',
+    subtitle: '认识论困境',
+    description: '我们所见的是真实世界，还是仅仅是影子的投影？',
+    category: 'epistemology',
+    icon: '🕳️',
+    color: '#8b5cf6',
+    order: 4,
+  },
+  'prisoners-dilemma': {
+    id: 'prisoners-dilemma',
+    title: '囚徒困境',
+    titleEn: 'Prisoner\'s Dilemma',
+    subtitle: '博弈论',
+    description: '理性选择是否总能导向最优结果？',
+    category: 'game-theory',
+    icon: '⛓️',
+    color: '#06b6d4',
+    order: 5,
+  },
+  'schrodingers-cat': {
+    id: 'schrodingers-cat',
+    title: '薛定谔的猫',
+    titleEn: 'Schrödinger\'s Cat',
+    subtitle: '量子悖论',
+    description: '未被观测的粒子同时处于多个状态，直到被观测才"坍缩"。',
+    category: 'physics',
+    icon: '🐱',
+    color: '#14b8a6',
+    order: 6,
+  },
+};
+
+// Export ordered list
+export const EXPERIMENTS_LIST = Object.values(EXPERIMENTS).sort((a, b) => a.order - b.order);
